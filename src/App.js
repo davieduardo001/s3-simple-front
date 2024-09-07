@@ -1,25 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { createContext, useContext, useState } from 'react';
+import { ThemeContext, ThemeProvider } from './Components/ThemeContext';
 
-function App() {
+
+const App = () => {
+
+  // Hooks
+  const { theme, toggleTheme, isDarkMode } = useContext(ThemeContext);
+
+  // Styles
+  const container = { 
+    backgroundColor: theme.background,
+    color: theme.text,
+    height: '100vh',
+    padding: '20px'
+  }
+  
+  // Main funcion
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={container}>
+      <p style={{ color: theme.secondary }}>
+        This is a simple app that toggles between dark and light themes using React Context.
+      </p>
+
+      <button
+        onClick={toggleTheme}
+        style={{
+          backgroundColor: theme.accentLight,
+          color: theme.text,
+          padding: '10px 20px',
+          border: 'none',
+          cursor: 'pointer',
+        }}
+      >
+        Switch to {isDarkMode ? 'Light' : 'Dark'} Theme
+      </button>
     </div>
   );
+
 }
 
-export default App;
+export default function ThemedApp() {
+  return (
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  );
+}
