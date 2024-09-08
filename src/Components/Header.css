@@ -1,0 +1,22 @@
+/* src/Header.css */
+  
+.header h1 {
+    margin: 0;
+}
+
+.header nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.header nav ul li {
+    margin-left: 20px;
+    font-weight: bold;
+    font-size: large;
+}
+
+.header nav ul li a:hover {
+    text-decoration: underline;
+}
