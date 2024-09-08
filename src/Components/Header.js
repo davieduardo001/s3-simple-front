@@ -6,23 +6,23 @@ import './Header.css'; // Import the CSS file for styling
 const Header = ({ theme }) => {
 
     const header = {
-        color: theme.primary, /* White text color */
-        padding: '20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+      background: 'none',
+      padding: '20px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
     }
 
     const linkStyleSelected = {
-        color: theme.primary, /* White text color for links */
-        textDecoration: 'underline',
-        fontWeight: 900
+      color: theme.primary, /* White text color for links */
+      textDecoration: 'underline',
+      fontWeight: 900
     }
 
     const linkStyle = {
-        color: theme.primary, /* White text color for links */
-        textDecoration: 'none',
-        fontWeight: 900
+      color: theme.primary, /* White text color for links */
+      textDecoration: 'none',
+      fontWeight: 900
     }
 
     return (
