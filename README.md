@@ -95,35 +95,7 @@ O pipeline de **Deploy Contínuo** é automatizado via Jenkins, com as seguintes
 
 ### 5.2 Diagrama de Fluxo
 
-```plaintext
-1. Developer               2. GitHub                3. Jenkins (Local)           4. AWS S3 (Deployment)
-    |                         |                           |                           |
-    |   Push code              |                           |                           |
-    |------------------------>|                           |                           |
-    |                         |                           |                           |
-    |   Trigger webhook        |                           |                           |
-    |<------------------------|                           |                           |
-    |                         |     Checkout code         |                           |
-    |                         |-------------------------->|                           |
-    |                         |                           |                           |
-    |                         |     Install dependencies   |                           |
-    |                         |<--------------------------|                           |
-    |                         |                           |                           |
-    |                         |     Build application      |                           |
-    |                         |<--------------------------|                           |
-    |                         |                           |                           |
-    |                         |     Run tests (optional)   |                           |
-    |                         |<--------------------------|                           |
-    |                         |                           |                           |
-    |                         |     Deploy to S3           |                           |
-    |                         |-------------------------->|                           |
-    |                         |                           |                           |
-    |                         |     Update website files   |                           |
-    |                         |-------------------------->|                           |
-    |                         |                           |                           |
-    |                         |                           |    Website available       |
-    |                         |                           |<--------------------------|
-```
+![alt text](image.png)
 
 ---
 
