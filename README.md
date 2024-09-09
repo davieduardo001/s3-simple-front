@@ -1,44 +1,51 @@
-#### Index
+# Documentação do Projeto: Deploy Contínuo com Jenkins, React.js e AWS S3
+
+---
+
+### Índice
 
 1. **Visão Geral do Projeto**
 2. **Pré-requisitos**
 3. **Configuração do Ambiente**
 4. **Desenvolvimento e Testes**
 5. **Pipeline de Deploy Contínuo**
-6. **Configuração do GitHub Actions**
+6. **Configuração do Jenkins**
 7. **Configuração do AWS S3**
 8. **Monitoramento e Manutenção**
 9. **Referências**
 
 ---
 
-# Documentação do Projeto: Deploy Contínuo com React e AWS
-
 ## 1. Visão Geral do Projeto
 
-O objetivo deste projeto é implementar uma solução de deploy contínuo para uma aplicação React utilizando computação em nuvem e soluções cloud-native com AWS. A pipeline de CI/CD será configurada para automatizar o processo de build e deploy da aplicação, garantindo que as atualizações no código sejam automaticamente refletidas no ambiente de produção.
+Este projeto tem como objetivo implementar uma solução de deploy contínuo para uma aplicação **React.js** utilizando o **Jenkins** para automação de CI/CD e o **AWS S3** como servidor de hospedagem de arquivos estáticos. A pipeline será configurada para que sempre que houver uma alteração no código no GitHub, o Jenkins execute o build da aplicação e faça o deploy no S3, garantindo que as atualizações estejam disponíveis no ambiente de produção.
 
 **Tecnologias Utilizadas:**
 - **React.js**: Framework para construção da interface do usuário.
 - **GitHub**: Sistema de controle de versão e gerenciamento de código-fonte.
-- **AWS S3**: Armazenamento de arquivos estáticos na nuvem.
-- **GitHub Actions**: Plataforma de CI/CD para automação de workflows.
+- **Jenkins**: Ferramenta de automação de integração contínua (CI) e entrega contínua (CD).
+- **AWS S3**: Serviço de armazenamento de objetos, utilizado para hospedar o site estático.
+
+---
 
 ## 2. Pré-requisitos
 
-Antes de iniciar a configuração do projeto, certifique-se de ter os seguintes pré-requisitos instalados e configurados:
+Antes de iniciar o processo de configuração do pipeline, certifique-se de que todos os pré-requisitos abaixo estão cumpridos:
 
-- Node.js (versão 14.x ou superior)
-- npm (ou yarn) para gerenciamento de pacotes
-- Conta AWS com permissões para acessar o S3 e configurar buckets
-- Conta GitHub e acesso ao repositório do projeto
-- Ferramenta de linha de comando `aws-cli` (opcional, para interações com AWS)
+- Conta GitHub e acesso ao repositório do projeto.
+- **Jenkins** instalado no servidor local (Home Lab) e configurado com acesso à internet.
+- **Node.js** (versão 14.x ou superior) e **npm** instalados no servidor Jenkins.
+- Conta **AWS** com permissões para acessar e configurar buckets no **S3**.
+- **AWS CLI** instalada no servidor Jenkins para interagir com os serviços da AWS.
+- Acesso SSH ao servidor Jenkins para realizar a configuração e criação dos jobs.
+
+---
 
 ## 3. Configuração do Ambiente
 
 ### 3.1 Clonando o Repositório
 
-Clone o repositório do projeto para o seu ambiente local:
+Clone o repositório do projeto no servidor Jenkins:
 
 ```bash
 git clone https://github.com/usuario/repositorio.git
@@ -47,117 +54,167 @@ cd repositorio
 
 ### 3.2 Instalando Dependências
 
-Instale as dependências do projeto:
+No servidor Jenkins, navegue até o diretório do projeto e instale as dependências da aplicação:
 
 ```bash
 npm install
 ```
 
-### 3.3 Configuração do Ambiente
-
-Crie um arquivo `.env` na raiz do projeto para armazenar variáveis de ambiente, se necessário. Certifique-se de incluir variáveis relacionadas ao deploy e configurações específicas.
+---
 
 ## 4. Desenvolvimento e Testes
 
-Desenvolva e teste a aplicação localmente. Utilize os comandos a seguir para iniciar o servidor de desenvolvimento e verificar a aplicação:
+### 4.1 Desenvolvimento Local
+
+Antes de configurar o pipeline, é importante garantir que o desenvolvimento local e os testes estão funcionando corretamente. Para iniciar o servidor de desenvolvimento, use:
 
 ```bash
 npm start
 ```
 
-Para rodar os testes:
+### 4.2 Rodando Testes
+
+Execute os testes da aplicação (se configurados):
 
 ```bash
 npm test
 ```
 
+---
+
 ## 5. Pipeline de Deploy Contínuo
 
-### 5.1 Visão Geral da Pipeline
+### 5.1 Visão Geral do Pipeline
 
-A pipeline de deploy contínuo automatiza o processo de build e deploy da aplicação para o AWS S3 sempre que mudanças são enviadas para o repositório GitHub. O processo é dividido em duas etapas principais:
+O pipeline de **Deploy Contínuo** é automatizado via Jenkins, com as seguintes etapas:
 
-1. **Build**: Geração dos arquivos estáticos da aplicação React.
-2. **Deploy**: Upload dos arquivos estáticos para um bucket S3.
+1. **Checkout do Código**: Jenkins faz o download da última versão do código do repositório GitHub.
+2. **Instalação de Dependências**: Jenkins instala todas as dependências da aplicação React.js.
+3. **Build da Aplicação**: Jenkins gera a versão de produção da aplicação.
+4. **Deploy para o AWS S3**: Os arquivos estáticos gerados no build são enviados para um bucket do AWS S3, tornando a aplicação acessível via um endpoint público.
 
-### 5.2 Configuração do GitHub Actions
+### 5.2 Diagrama de Fluxo
 
-Crie um arquivo de workflow no diretório `.github/workflows/` do seu repositório. Nomeie o arquivo como `deploy.yml` e adicione o seguinte conteúdo:
-
-```yaml
-name: Deploy to S3
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Build application
-      run: npm run build
-
-    - name: Deploy to S3
-      uses: jakejarvis/s3-sync-action@v0.5.7
-      with:
-        args: --acl public-read --follow-symlinks --delete ./build s3://<YOUR-S3-BUCKET-NAME>
-      env:
-        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+```plaintext
+1. Developer               2. GitHub                3. Jenkins (Local)           4. AWS S3 (Deployment)
+    |                         |                           |                           |
+    |   Push code              |                           |                           |
+    |------------------------>|                           |                           |
+    |                         |                           |                           |
+    |   Trigger webhook        |                           |                           |
+    |<------------------------|                           |                           |
+    |                         |     Checkout code         |                           |
+    |                         |-------------------------->|                           |
+    |                         |                           |                           |
+    |                         |     Install dependencies   |                           |
+    |                         |<--------------------------|                           |
+    |                         |                           |                           |
+    |                         |     Build application      |                           |
+    |                         |<--------------------------|                           |
+    |                         |                           |                           |
+    |                         |     Run tests (optional)   |                           |
+    |                         |<--------------------------|                           |
+    |                         |                           |                           |
+    |                         |     Deploy to S3           |                           |
+    |                         |-------------------------->|                           |
+    |                         |                           |                           |
+    |                         |     Update website files   |                           |
+    |                         |-------------------------->|                           |
+    |                         |                           |                           |
+    |                         |                           |    Website available       |
+    |                         |                           |<--------------------------|
 ```
 
-Substitua `<YOUR-S3-BUCKET-NAME>` pelo nome do seu bucket S3.
+---
 
-### 5.3 Configuração dos Secrets no GitHub
+## 6. Configuração do Jenkins
 
-Adicione as credenciais da AWS como secrets no seu repositório GitHub:
+### 6.1 Criando um Job no Jenkins
 
-1. Vá para o repositório no GitHub.
-2. Navegue para **Settings** > **Secrets and variables** > **Actions**.
-3. Adicione os seguintes secrets:
-   - `AWS_S3_BUCKET` – Nome do bucket S3.
-   - `AWS_ACCESS_KEY_ID` – Chave de acesso da AWS.
-   - `AWS_SECRET_ACCESS_KEY` – Chave secreta da AWS.
+1. Acesse o **Jenkins** no servidor local.
+2. Crie um novo **Pipeline Job** e configure as seguintes etapas:
 
-## 6. Configuração do AWS S3
+- **Checkout do Código**:
+  Use o plugin **Git** para integrar com o repositório do GitHub.
 
-### 6.1 Criar um Bucket S3
+- **Instalação das Dependências e Build**:
+  Configure o pipeline para rodar os seguintes comandos:
+  
+  ```bash
+  npm install
+  npm run build
+  ```
 
-1. Acesse o console AWS S3.
-2. Clique em **Create bucket**.
-3. Siga as instruções para criar um bucket, garantindo que o bucket seja público para que os arquivos possam ser acessados via HTTP.
+- **Deploy para o AWS S3**:
+  Configure o Jenkins para usar o **AWS CLI** para sincronizar os arquivos gerados com o S3:
 
-### 6.2 Configurar Permissões
+  ```bash
+  aws s3 sync ./build s3://<nome-do-bucket-s3> --delete
+  ```
 
-Certifique-se de que o bucket tenha permissões apropriadas para leitura pública. Ajuste as permissões de acesso conforme necessário.
+Substitua `<nome-do-bucket-s3>` pelo nome do seu bucket S3.
 
-## 7. Monitoramento e Manutenção
+### 6.2 Configuração de Credenciais
 
-### 7.1 Monitorar a Pipeline
+Configure as credenciais da AWS no Jenkins para garantir acesso ao S3. Vá em **Gerenciar Jenkins** > **Gerenciar Credenciais** e adicione as chaves de acesso da AWS.
 
-Verifique a aba **Actions** no seu repositório GitHub para monitorar o status das execuções da pipeline. Verifique os logs para identificar e corrigir problemas.
+---
 
-### 7.2 Atualizar Dependências
+## 7. Configuração do AWS S3
 
-Periodicamente, atualize as dependências do projeto e revise a configuração da pipeline para garantir compatibilidade com novas versões e melhores práticas.
+### 7.1 Criando o Bucket S3
 
-## 8. Referências
+1. No console da AWS, acesse o **S3** e crie um novo **bucket**.
+2. Certifique-se de configurar o bucket para ser público, permitindo o acesso HTTP aos arquivos estáticos.
 
-- [Documentação do GitHub Actions](https://docs.github.com/en/actions)
+### 7.2 Configuração de Políticas de Acesso
+
+Adicione uma política de acesso ao bucket que permita a leitura pública dos arquivos estáticos da aplicação:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadGetObject",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::<nome-do-bucket-s3>/*"
+    }
+  ]
+}
+```
+
+---
+
+## 8. Monitoramento e Manutenção
+
+## 8. Monitoramento e Manutenção
+
+### 8.1 Monitoramento da Pipeline no Jenkins
+
+O monitoramento da pipeline é feito através do Jenkins, onde todas as execuções podem ser acompanhadas na aba **Builds**. Em caso de falhas, os logs do Jenkins devem ser consultados para identificar e corrigir problemas. 
+
+### 8.2 Monitoramento com Portainer
+
+Além do Jenkins, o **Portainer** também é utilizado no **Home Lab** para monitorar os containers e a infraestrutura Docker. O Portainer fornece uma interface gráfica que facilita a gestão e o acompanhamento do estado dos containers, permitindo:
+
+- **Monitoramento em tempo real** do status dos containers e dos recursos utilizados (CPU, memória, rede, etc.).
+- **Gestão de containers** Docker, permitindo a reinicialização ou parada manual dos serviços se necessário.
+- **Logs em tempo real** dos containers para auxiliar na análise de problemas.
+  
+### 8.3 Manutenção do Ambiente
+
+Além do monitoramento contínuo, é importante realizar a manutenção periódica dos seguintes componentes:
+- **Bucket S3**: Verificar permissões e se o conteúdo está sendo servido corretamente.
+- **Pipeline Jenkins**: Garantir que a pipeline esteja atualizada com as dependências e que não haja erros nos jobs.
+- **Containers no Portainer**: Monitorar o uso de recursos dos containers e verificar se há necessidade de ajuste na infraestrutura Docker para evitar sobrecarga.
+
+---
+
+## 9. Referências
+
+- [Documentação do Jenkins](https://www.jenkins.io/doc/)
 - [Documentação do AWS S3](https://docs.aws.amazon.com/s3/index.html)
-- [Documentação do React](https://reactjs.org/docs/getting-started.html)
+- [Documentação do React.js](https://reactjs.org/docs/getting-started.html)
