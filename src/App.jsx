@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { color, motion } from 'framer-motion';
 import { darkTheme, lightTheme } from './Assets/Theme';
 import Header from './Components/Header';
+import MainContent from './Components/MainContent'
 import './App.css'
 
 const App = () => {
@@ -62,6 +63,10 @@ const App = () => {
           {isDarkTheme ? 'Light' : 'Dark'} Mode
         </button>
       </div>
+
+      <main style={{display: 'flex', flexDirection: 'row', paddingTop: '70px'}}>
+        <MainContent theme={currentTheme}/>
+      </main>
 
 
     </motion.div>
